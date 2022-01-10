@@ -1,5 +1,6 @@
 const { Builder, By, Key, until, Capabilities } = require("selenium-webdriver");
 const caps = new Capabilities();
+const expect = require("chai").expect;
 caps.setPageLoadStrategy("normal");
 
 (async function example() {
@@ -50,7 +51,7 @@ caps.setPageLoadStrategy("normal");
       until.elementLocated(By.xpath("//h4")),
       10000
     );
-    console.log(await finalResult.getText());
+    expect(await finalResult.getText()).to.be.eql("No items in comparison.");
   } finally {
     await driver.quit();
   }
