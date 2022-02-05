@@ -1,57 +1,36 @@
-const { Builder, By, Key, until, Capabilities } = require("selenium-webdriver");
-const caps = new Capabilities();
-caps.setPageLoadStrategy("normal");
+const {Builder, By, until} = require("selenium-webdriver");
+const expect = require('chai').expect;
+var driver = new Builder().forBrowser("chrome").build();
+driver.manage().window().maximize(); 
 
-(async function example() {
-  let driver = await new Builder()
-    .withCapabilities(caps)
-    .forBrowser("chrome")
-    .build();
-  try {
-    await driver.get("https://www.apc.com/");
-    await driver.manage().window().maximize();
+describe ('Count of Members in Iron Maiden', function() {
 
-    // Choosing country
-    await driver
-      .findElement(By.xpath('//a[contains(text(), "United States")]'))
-      .click();
+    it('Should search and open Iron Maiden Page from initial page', async function() {
+        await driver.get("https://www.wikipedia.org/");
+        const btnSelectEnglishVersion = driver.findElement(By.id("js-link-box-en"));
+        await btnSelectEnglishVersion.click();
+        driver.wait(until.elementLocated(By.xpath("//*[@placeholder='Search Wikipedia']")))
+        .sendKeys("Iron Maiden");
+        await driver.findElement(By.xpath("//*[@type='submit' and @name='go']")).click();
+        const arcticMonkeysPageTitle = await driver.findElement(By.css(".firstHeading")).getText();
+        expect(arcticMonkeysPageTitle).to.be.equal("Iron Maiden");
+    });    
 
-    // Search for an item
-    await driver
-      .findElement(By.css('input[placeholder="Search apc.com"]'))
-      .sendKeys("UPS 500", Key.ENTER);
+    it('Should check that Iron Maiden has 19 members', async function() {
+        await driver.get("https://en.wikipedia.org/wiki/Iron_Maiden");
+        const arrayOfMembers = await driver.findElements(By.css("td.infobox-data > ul > li [href^='/']"));
+        const countOfMembers = arrayOfMembers.length;
+        expect(countOfMembers).to.be.equal(19);
+    });
 
-    // Add first 2 items from search to comparison
-    await driver
-      .findElement(
-        By.xpath('//li[1]//div[@class="result-list__item-comparison"]'))
-      .click();
-    await driver
-      .findElement(
-        By.xpath('//li[2]//div[@class="result-list__item-comparison"]'))
-      .click();
-    await driver
-      .findElement(By.xpath('//a[contains(text(),"Compare Now")]'))
-      .click();
-    await driver.manage().setTimeouts({ implicit: 30000 });
-
-    // Highlight Differences
-    await driver
-      .findElement(By.xpath('//label[input[@id="highlightDifference"]]'))
-      .click();
-
-    // Delete all items from comparison
-    await driver
-      .findElement(By.css("button.analytics-compare-clear-list"))
-      .click();
-
-    // Log to the console label that the comparison is cleared
-    let finalResult = await driver.wait(
-      until.elementLocated(By.xpath("//h4")),
-      10000
-    );
-    console.log(await finalResult.getText());
-  } finally {
-    await driver.quit();
-  }
-})();
+    it('Should open Bruce Dickinson page from Members category', async function() {
+        await driver.get("https://en.wikipedia.org/wiki/Iron_Maiden");
+        const alexTurnerBtn = driver.findElement(By.css("td.infobox-data > ul > li:nth-child(4) [href^='/']"));
+        await alexTurnerBtn.click();
+        const alexTurnerPageTitle = await driver.findElement(By.css(".firstHeading")).getText();
+        expect(alexTurnerPageTitle).to.be.equal("Bruce Dickinson");
+    });
+    after(function() {
+        driver.quit();
+    })
+});
