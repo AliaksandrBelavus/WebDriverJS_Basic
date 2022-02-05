@@ -29,7 +29,8 @@ describe ('Count of Members in Iron Maiden', function() {
         await alexTurnerBtn.click();
         const alexTurnerPageTitle = await driver.findElement(By.css(".firstHeading")).getText();
         expect(alexTurnerPageTitle).to.be.equal("Bruce Dickinson");
-        driver.quit();
     });
-
+    after(function() {
+        driver.quit();
+    })
 });
